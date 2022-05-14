@@ -1,0 +1,170 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerMovment : MonoBehaviour
+{
+  //  public CharacterController2D controller;
+    float horizontalmove = 0f;
+    public float speed = 10f;
+    bool jump = false;
+    bool crouch = false;
+    private int damage = 52;
+    [SerializeField]
+    private float jumpForce = 10f;
+    [SerializeField]
+    private Rigidbody2D myBody;
+    private Animator anim;
+    private string run_ANIMATION = "run";
+    private string jump_ANIMATION = "jump";
+    private SpriteRenderer sr;
+    private bool isgrounded = false;
+    private bool isgroundedde2 = false;
+    public static int  health = 100;
+    
+    private string g_Tag = "ground";
+    [SerializeField]
+    private GameObject deatheffect;
+    private ScoreC thesc;
+    public DEathMenu dtme;
+    public GameObject es;
+    public GameObject fg ;
+    public GameObject fg2;
+    private float acceleration = 0.032f;
+    private float maxSpeed = 11.6f;
+
+    private float curSpeed = 7.5f;
+    private void Awake()
+    {
+       // myBody =GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        sr = GetComponent<SpriteRenderer>();
+        
+    }
+    private void Start()
+    {
+        thesc = FindObjectOfType<ScoreC>();
+        dtme=FindObjectOfType<DEathMenu>(true);
+       // es = FindObjectOfType<enemySpawner>(); 
+    }
+    public void TakeDamage(int damage)
+    {
+       
+        health -= damage;
+        if (health <= 0)
+        {
+            Die();
+            thesc.scoreInc = false;
+        }
+    }
+    void Die()
+    {
+        Instantiate(deatheffect, transform.position, Quaternion.identity);
+        thesc.scoreInc = false;
+        dtme.gameObject.SetActive(true);
+         es.SetActive(false);
+        
+        fg.gameObject.SetActive(false);fg2.gameObject.SetActive(false);
+        gameObject.SetActive(false);
+    }
+    
+    // Update is called once per frame
+    void Update()
+    {
+        
+       
+       // transform.Translate(Vector3.forward * curSpeed * Time.deltaTime);
+       transform.Translate(curSpeed*Time.deltaTime,0f,0f);
+        curSpeed += acceleration *Time.deltaTime;
+        
+        if (curSpeed  > maxSpeed)
+        {
+            curSpeed = maxSpeed;
+        }        
+       
+       // transform.Translate(speed*Time.deltaTime*0.2f , 0, 0);
+      //  Debug.Log((speed * Time.deltaTime * 0.2f) + (Time.time * 0.001f));
+        anim.SetBool(run_ANIMATION, true);
+      /*  if(isgrounded)
+        {
+            myBody.constraints = RigidbodyConstraints2D.FreezePositionY|RigidbodyConstraints2D.FreezeRotation;
+        }
+        else if(isgrounded==false)
+        {
+            myBody.constraints = RigidbodyConstraints2D.FreezeRotation;
+        }*/
+        
+
+    }
+    private void FixedUpdate()
+    {
+        // controller.Move(horizontalmove * Time.deltaTime, crouch, jump);
+        // jumpanim();
+        myBody.velocity = new Vector2(0,myBody.velocity.y);
+    }
+  
+    
+    private void OnCollisionEnter2D(Collision2D collision) // the colliser is the ground 
+    {
+        //if the colliser has the tag ground then isgrounded= true 
+        if (collision.gameObject.CompareTag(g_Tag))
+        {
+            isgrounded = true;
+            
+
+        }
+        else if (collision.gameObject.CompareTag("g1")&& myBody.velocity.y == 0)
+        {
+            
+            isgroundedde2 = true;
+
+        }
+     
+     
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            health = 0; 
+            gameObject.SetActive(false);
+            Instantiate(deatheffect, transform.position, Quaternion.identity);
+            thesc.scoreInc = false;
+            dtme.gameObject.SetActive(true);
+            fg.gameObject.SetActive(false);fg2.gameObject.SetActive(false);
+             es.gameObject.SetActive(false);
+            
+        }
+    }
+  
+    public void jumpanim()
+
+    {
+       
+        if (isgrounded == true)
+            anim.SetBool(jump_ANIMATION, false);
+    }
+    public void jump4()
+    {
+       // anim.SetTrigger("jump1");
+        if (isgrounded == true&&myBody.velocity.y==0)
+         {
+             myBody.constraints = RigidbodyConstraints2D.FreezeRotation;
+            anim.SetTrigger("jump1");
+            isgrounded = false;
+             myBody.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+            
+            // anim.SetBool(jump_ANIMATION, true);
+            // jumpanim();
+         }
+        
+       
+       
+    }
+    public bool canattack ()
+    {
+        return isgrounded;
+    }
+    public void rre ()
+    {
+        anim.SetTrigger("hurt");
+    }
+
+}
