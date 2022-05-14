@@ -1,0 +1,35 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CamerFollow : MonoBehaviour
+{
+    private Transform player;
+    private Vector3 temPos;
+    
+    private float minX=0;
+    // Start is called before the first frame update
+    void Start()
+    {
+        // we get the position of the game object which has the tag player
+        //which is the player game object 
+        player = GameObject.FindWithTag("Player").transform;
+    }
+
+
+    void LateUpdate() //it's called after the excution of update methode
+    {
+        
+        // if player gameobject exists then follow with the camera ,if not the skip this methode
+        // //in a void methode when write return we skip the rest of the methode 
+        if (!player)
+            return;
+        temPos = transform.position;
+        temPos.x = player.position.x+8.7f;
+
+        if (temPos.x < minX)
+            temPos.x = minX;
+        
+        transform.position = temPos;
+    }
+}
